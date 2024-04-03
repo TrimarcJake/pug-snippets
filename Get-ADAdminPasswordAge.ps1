@@ -4,10 +4,11 @@ $DNs = @()
 $PrincipalInfo = @()
 
 $Domains | ForEach-Object {
-    $DomainSid = (Get-ADDomain -Server $_).DomainSID.Value
+    $Domain = $_
+    $DomainSid = (Get-ADDomain -Server $Domain).DomainSID.Value
     
     $KrbtgtSid = $DomainSid + "-502"
-    $DNs += (Get-ADUser -Server $_ -Identity $KrbtgtSid).distinguishedName
+    $DNs += (Get-ADUser -Server $Domain -Identity $KrbtgtSid).distinguishedName
 
     $BASid = 'S-1-5-32-544'
     $DASid = $DomainSid + '-512'
@@ -15,15 +16,14 @@ $Domains | ForEach-Object {
     $SASid = $DomainSid + '-518'
     foreach ($sid in @($BASid, $DASid, $EASid, $SASid)) {
         try {
-            $DNs += (Get-ADGroupMember -Server $_ -Identity $sid -Recursive).distinguishedName
-            $DNs += (Get-ADGroup -Server $_ -Identity $sid).Members
+            $DNs += (Get-ADGroupMember -Server $Domain -Identity $sid -Recursive).distinguishedName
+            $DNs += (Get-ADGroup -Server $Domain -Identity $sid).Members
         } catch {}
     }
 
     $DNs = $DNs | Sort-Object -Unique
     
     foreach ($dn in $DNs) {
-        $Domain = $_
         try {
             $PrincipalInfo += Get-ADUser -Server $Domain -Identity $dn -Properties PasswordLastSet | Select-Object {$Domain}, Name, objectClass, PasswordLastSet
         } catch {}
