@@ -3,6 +3,7 @@
 title: Before
 ---
 sequenceDiagram
+  actor AD Admin Dave
   AD Admin Dave ->> Web Server: May I have confidential data?
   create participant SQL Server
   Web Server ->> SQL Server: May I have AD Admin's confidential data? (Dave said it's okay.)
@@ -15,6 +16,7 @@ sequenceDiagram
 title: After
 ---
 sequenceDiagram
+  actor AD Admin Dave
   AD Admin Dave ->> Web Server: May I have confidential data?
   create participant SQL Server
   Web Server ->> SQL Server: May I have AD Admin's confidential data? (Dave said it's okay.)
