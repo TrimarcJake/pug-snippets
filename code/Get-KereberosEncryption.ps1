@@ -1,0 +1,1 @@
+Get-WinEvent -FilterHashTable @{ LogName = 'Security'; ID = 4768 }

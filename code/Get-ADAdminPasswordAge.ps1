@@ -1,6 +1,8 @@
 $Forest = Get-ADForest
 $Domains = $Forest.Domains
+$DomainLength = 0
 $DNs = @()
+$NameLength = 0
 $PrincipalInfo = @()
 
 $Domains | ForEach-Object {
@@ -36,5 +38,9 @@ $Domains | ForEach-Object {
     }
 }
 
+$DomainLength = -4 - ($PrincipalInfo | Measure-Object -Maximum -Property '$Domain').Maximum.length
+$NameLength = -8 - ($PrincipalInfo | Measure-Object -Maximum -Property Name).Maximum.length
+$PasswordLastSetLength = -12 - ($PrincipalInfo | Measure-Object -Maximum -Property PasswordLastSet).Maximum.length
+
 $PrincipalInfo = $PrincipalInfo | Sort-Object -Property PasswordLastSet
-$PrincipalInfo | Format-Table -AutoSize
+$PrincipalInfo | ForEach-Object { "{0,$DomainLength}{1,$NameLength}{2,$PasswordLastSetLength}" -f $_.'$Domain',$_.Name,$_.PasswordLastSet }
