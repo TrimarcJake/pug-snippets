@@ -21,5 +21,5 @@ sequenceDiagram
   create participant SQL Server
   Web Server ->> SQL Server: May I have AD Admin's confidential data? (Dave said it's okay.)
   SQL Server ->> Web Server: LIAR! Protected Users can't be delegated!
-  Web Server ->> AD Admin Dave: I'm sorry, I can't do that, Dave.
+  Web Server ->> AD Admin Dave: I'm sorry, Dave. I'm afaird I can't do that.
 ```
