@@ -45,5 +45,6 @@ $PasswordLastSetLength = -12 - ($PrincipalInfo | Measure-Object -Maximum -Proper
 $PrincipalInfo = $PrincipalInfo | Sort-Object -Property PasswordLastSet
 $PrincipalInfo | ForEach-Object { "{0,$DomainLength}{1,$NameLength}{2,$PasswordLastSetLength}" -f $_.'$Domain',$_.Name,$_.PasswordLastSet }
 
-https://stackoverflow.com/questions/1408042/output-data-with-no-column-headings-using-powershell
-https://stackoverflow.com/questions/23626308/powershell-array-get-the-longest-string
+# Sources:
+# https://stackoverflow.com/questions/1408042/output-data-with-no-column-headings-using-powershell
+# https://stackoverflow.com/questions/23626308/powershell-array-get-the-longest-string
