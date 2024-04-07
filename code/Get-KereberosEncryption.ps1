@@ -12,4 +12,4 @@ $filter = @"
         [(EventID=4768 or EventID=4769)]
     ]
 "@
-Get-WinEvent -FilterXPath $filter -LogName Security | Select-Object -ExpandProperty Message -Last 1
+Get-WinEvent -FilterXPath $filter -LogName Security
