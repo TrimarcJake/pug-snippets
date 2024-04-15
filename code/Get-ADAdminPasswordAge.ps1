@@ -1,50 +1,48 @@
 $Forest = Get-ADForest
 $Domains = $Forest.Domains
-$DomainLength = 0
 $DNs = @()
-$NameLength = 0
-$PrincipalInfo = @()
+$Info = @()
 
 $Domains | ForEach-Object {
     $Domain = $_
     $DomainSid = (Get-ADDomain -Server $Domain).DomainSID.Value
-    
     $KrbtgtSid = $DomainSid + "-502"
-    $DNs += (Get-ADUser -Server $Domain -Identity $KrbtgtSid).distinguishedName
+    $AdaSids = @(
+        'S-1-5-32-544',
+        "$DomainSid-512",
+        "$DomainSid-519",
+        "$DomainSid-518"
+    )
 
-    $BASid = 'S-1-5-32-544'
-    $DASid = $DomainSid + '-512'
-    $EASid = $DomainSid + '-519'
-    $SASid = $DomainSid + '-518'
-    foreach ($sid in @($BASid, $DASid, $EASid, $SASid)) {
+    $DNs = foreach ($sid in $AdaSids) {
+        $GetDNSplat = @{
+            Server = $_
+            Identity = $sid
+        }
         try {
-            $DNs += (Get-ADGroupMember -Server $Domain -Identity $sid -Recursive).distinguishedName
-            $DNs += (Get-ADGroup -Server $Domain -Identity $sid).Members
+            (Get-ADGroupMember @GetDNSplat -Recursive).distinguishedName
+            (Get-ADGroup @GetDNSplat).Members
         } catch {}
     }
-
+    $DNs += (Get-ADUser -Server $Domain -Identity $KrbtgtSid).distinguishedName
     $DNs = $DNs | Sort-Object -Unique
     
-    foreach ($dn in $DNs) {
+    $Info = foreach ($dn in $DNs) {
+        $GetInfoSplat = @{
+            Server = $Domain
+            Identity = $dn
+            Properties = '*'
+        }
+    
+        $SelectProperties = @('CanonicalName',@{name ="pwdLastSet";
+            expression={[datetime]::FromFileTime($_.pwdLastSet)}})
+
         try {
-            $PrincipalInfo += Get-ADUser -Server $Domain -Identity $dn -Properties PasswordLastSet | Select-Object {$Domain}, Name, objectClass, PasswordLastSet
-        } catch {}
-        try {
-            $PrincipalInfo += Get-ADComputer -Server $Domain -Identity $dn -Properties PasswordLastSet | Select-Object {$Domain}, Name, objectClass, PasswordLastSet
-        } catch {}
-        try {
-            $PrincipalInfo += Get-ADServiceAccount -Server $Domain -Identity $dn -Properties PasswordLastSet | Select-Object {$Domain}, Name, objectClass, PasswordLastSet
+            Get-ADObject @GetInfoSplat | Select-Object $SelectProperties
         } catch {}
     }
+
+    $Info | Sort-Object -Property pwdLastSet
 }
 
-$DomainLength = -4 - ($PrincipalInfo | Measure-Object -Maximum -Property '$Domain').Maximum.length
-$NameLength = -8 - ($PrincipalInfo | Measure-Object -Maximum -Property Name).Maximum.length
-$PasswordLastSetLength = -12 - ($PrincipalInfo | Measure-Object -Maximum -Property PasswordLastSet).Maximum.length
-
-$PrincipalInfo = $PrincipalInfo | Sort-Object -Property PasswordLastSet
-$PrincipalInfo | ForEach-Object { "{0,$DomainLength}{1,$NameLength}{2,$PasswordLastSetLength}" -f $_.'$Domain',$_.Name,$_.PasswordLastSet }
-
-# Sources:
-# https://stackoverflow.com/questions/1408042/output-data-with-no-column-headings-using-powershell
-# https://stackoverflow.com/questions/23626308/powershell-array-get-the-longest-string
+# Source: https://techhues.wordpress.com/2017/03/13/efficiently-converting-pwdlastset-to-datetime-and-exporting-it-to-csv-in-a-single-line/
