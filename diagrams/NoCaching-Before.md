@@ -2,6 +2,11 @@
 ---
 title: Before
 ---
+%%{
+  init: {
+    'theme': 'forest'
+  }
+}%%
 sequenceDiagram
   actor AD Admin
   participant User Workstation
