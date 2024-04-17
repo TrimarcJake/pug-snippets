@@ -36,7 +36,7 @@ $ForestInfo = $Domains | ForEach-Object {
     
         $SelectProperties = @(
             @{name='Domain';expression={$Domain}},
-            'Name',
+            'sAMAccountName',
             @{name ='pwdLastSet';expression={[datetime]::FromFileTime($_.pwdLastSet)}}
         )
 
