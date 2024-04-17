@@ -12,5 +12,14 @@ foreach ($ADAdminName in $ForestInfo.sAMAccountName) {
             [(EventID=4768 or EventID=4769)]
         ]
 "@
-    Get-WinEvent -FilterXPath $filter -LogName Security | Select-Object -Last 1
+    Write-Host "Checking for DES/RC4 Kerberos logons for $ADAdminName`: " -NoNewline
+    try {
+        Get-WinEvent -FilterXPath $filter -LogName Security -ErrorAction Stop |
+            Select-Object -Last 1 |
+            Out-Null
+        Write-Host "Recent weakly encrypted Kerberos logon found for $ADAdminName" -ForegroundColor Red
+    } catch {
+        Write-Host "No weakly encrypted Kerberos logons found for $ADAdminName"
+    }
+    Write-Host
 }
