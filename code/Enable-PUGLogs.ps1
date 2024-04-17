@@ -2,9 +2,11 @@
 
 Get-WinEvent -ListLog Microsoft-Windows-Authentication*/ProtectedUser* | Select-Object LogName, IsEnabled
 
-foreach ($LogName in (Get-WinEvent -ListLog Microsoft-Windows-Authentication*/ProtectedUser*).LogName) {
+$LogNames = (Get-WinEvent -ListLog Microsoft-Windows-Authentication*/ProtectedUser*).LogName
+
+foreach ($LogName in $LogNames) {
     $Log = New-Object System.Diagnostics.Eventing.Reader.EventLogConfiguration $LogName
-    $Log.IsEnabled=$true
+    $Log.IsEnabled = $true
     $Log.SaveChanges()
 }
 
