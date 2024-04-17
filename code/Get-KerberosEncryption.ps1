@@ -2,7 +2,6 @@
 # XPath: https://powershell.org/2019/08/a-better-way-to-search-events/
 
 foreach ($ADAdminName in $ForestInfo.sAMAccountName) {
-    Write-Host $ADAdminName
     $filter = @"
         *[EventData
             [Data[@Name='TargetUserName']='$ADAdminName']
@@ -13,5 +12,5 @@ foreach ($ADAdminName in $ForestInfo.sAMAccountName) {
             [(EventID=4768 or EventID=4769)]
         ]
 "@
-    Get-WinEvent -FilterXPath $filter -LogName Security | Select-Object -ExpandProperty Message -Last 1
+    Get-WinEvent -FilterXPath $filter -LogName Security | Select-Object -Last 1
 }

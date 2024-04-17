@@ -16,5 +16,5 @@ foreach ($ADAdminName in $ForestInfo.sAMAccountName) {
             [(EventID=4624 or EventID=4625)]
         ]
 "@
-    Get-WinEvent -FilterXPath $filter -LogName Security | Select-Object -ExpandProperty Message -Last 1
+    Get-WinEvent -FilterXPath $filter -LogName Security | Select-Object -Last 1
 }
