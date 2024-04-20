@@ -1,4 +1,3 @@
-v
 $DomainControllers = $Domains | ForEach-Object {
     Get-ADDomainController -Filter * -Server $_
 }
