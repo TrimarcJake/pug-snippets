@@ -1,4 +1,4 @@
-foreach ($ADAdminName in $ForestInfo.sAMAccountName) {
+foreach ($ADAdminName in $ForestADAs.sAMAccountName) {
     $filter = @"
         *[EventData
             [Data
