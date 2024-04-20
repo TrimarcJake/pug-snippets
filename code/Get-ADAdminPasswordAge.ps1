@@ -1,9 +1,9 @@
 $Forest = Get-ADForest
 $Domains = $Forest.Domains
 $DNs = @()
-$ForestInfo = @()
+$ForestADAs = @()
 
-$ForestInfo = $Domains | ForEach-Object {
+$ForestADAs = $Domains | ForEach-Object {
     $Domain = $_
     $DomainSid = (Get-ADDomain -Server $Domain).DomainSID.Value
     $KrbtgtSid = $DomainSid + "-502"
@@ -27,7 +27,7 @@ $ForestInfo = $Domains | ForEach-Object {
     $DNs += (Get-ADUser -Server $Domain -Identity $KrbtgtSid).distinguishedName
     $DNs = $DNs | Sort-Object -Unique
     
-    $DomainInfo = foreach ($dn in $DNs) {
+    $DomainADAs = foreach ($dn in $DNs) {
         $GetInfoSplat = @{
             Server = $Domain
             Identity = $dn
@@ -37,6 +37,7 @@ $ForestInfo = $Domains | ForEach-Object {
         $SelectProperties = @(
             @{name='Domain';expression={$Domain}},
             'sAMAccountName',
+            'distinguishedName',
             @{name ='pwdLastSet';expression={[datetime]::FromFileTime($_.pwdLastSet)}}
         )
 
@@ -45,9 +46,9 @@ $ForestInfo = $Domains | ForEach-Object {
         } catch {}
     }
 
-    $DomainInfo | Sort-Object -Property pwdLastSet
+    $DomainADAs | Sort-Object -Property pwdLastSet
 }
 
-$ForestInfo
+$ForestADAs | Select-Object Domain, sAMAccountName, pwdLastSet
 
 # Source: https://techhues.wordpress.com/2017/03/13/efficiently-converting-pwdlastset-to-datetime-and-exporting-it-to-csv-in-a-single-line/
