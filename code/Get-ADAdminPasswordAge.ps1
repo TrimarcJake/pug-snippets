@@ -38,7 +38,11 @@ $ForestADAs = $Domains | ForEach-Object {
             @{name='Domain';expression={$Domain}},
             'sAMAccountName',
             'distinguishedName',
-            @{name ='pwdLastSet';expression={[datetime]::FromFileTime($_.pwdLastSet)}}
+            @{
+                name ='pwdLastSet';expression={
+                    [datetime]::FromFileTime($_.pwdLastSet)
+                }
+            }
         )
 
         try {
